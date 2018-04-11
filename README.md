@@ -2,7 +2,7 @@
 ## Welcome to GitHub Pages
 
 
-```markdown
+``` markdown
 
 # 改进SDWebimage的图片更新机制
 
@@ -17,27 +17,26 @@
 1. 缓存策略要选择SDWebImageRefreshCached
 2. 需要在下载图片之前调用一下方法添加请求headers
 
-````
 /**
 配置SDWebImage在URL不变时可以更新到最新的图片
 */
 - (void)configSDWebimageDownloader {
-SDWebImageDownloader *imgDownloader = SDWebImageManager.sharedManager.imageDownloader;
-imgDownloader.headersFilter  = ^NSDictionary *(NSURL *url, NSDictionary *headers) {
+	SDWebImageDownloader *imgDownloader = SDWebImageManager.sharedManager.imageDownloader;
+	imgDownloader.headersFilter  = ^NSDictionary *(NSURL *url, NSDictionary *headers) {
 
-NSMutableDictionary *mutableHeaders = [headers mutableCopy];
-NSDictionary *preResponseHeaders = ( NSDictionary * _Nullable )[[BRCacheManager shared].imageModifyDateCache objectForKey:[[SDWebImageManager sharedManager] cacheKeyForURL:url]];
-if (preResponseHeaders) {
-NSString *lastModifiedStr = preResponseHeaders[@"Last-Modified"];
-lastModifiedStr = lastModifiedStr? : @"";
-[mutableHeaders setValue:lastModifiedStr forKey:@"If-Modified-Since"];
-NSString *etag = preResponseHeaders[@"Etag"];
-etag = etag?:@"";
-[mutableHeaders setValue:etag forKey:@"Etag"];
+		NSMutableDictionary *mutableHeaders = [headers mutableCopy];
+		NSDictionary *preResponseHeaders = ( NSDictionary * _Nullable )[[BRCacheManager shared].imageModifyDateCache objectForKey:[[SDWebImageManager sharedManager] cacheKeyForURL:url]];
+		if (preResponseHeaders) {
+			NSString *lastModifiedStr = preResponseHeaders[@"Last-Modified"];
+			lastModifiedStr = lastModifiedStr? : @"";
+			[mutableHeaders setValue:lastModifiedStr forKey:@"If-Modified-Since"];
+			NSString *etag = preResponseHeaders[@"Etag"];
+			etag = etag?:@"";
+			[mutableHeaders setValue:etag forKey:@"Etag"];
+		}
+		return mutableHeaders;
+	};
 }
-return mutableHeaders;
-};
-}
-````
+
 
 ```
